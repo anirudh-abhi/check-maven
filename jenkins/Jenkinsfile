@@ -2,14 +2,35 @@ pipeline {
     agent any
 
     tools {
-        maven 'maven-3.9.3' // This should match the name you used in the Jenkins tool configuration
+        maven 'Maven'  // Assuming you have configured Maven in Jenkins Global Tool Configuration
     }
 
     stages {
+        stage('Checkout') {
+            steps {
+                git 'https://https://github.com/anirudh-abhi/check-maven.git'
+            }
+        }
+
         stage('Build') {
             steps {
-                sh 'mvn -B -DskipTests clean package'
+                sh 'mvn clean package'
             }
+        }
+
+        stage('Deploy') {
+            steps {
+                deploy adapters: [tomcat9(credentialsId: 'Tomcat-Credentials', path: '', url: 'http://your-tomcat-server:8080')], contextPath: '/', war: '**/*.war'
+            }
+        }
+    }
+
+    post {
+        success {
+            echo 'Deployment successful!'
+        }
+        failure {
+            echo 'Deployment failed!'
         }
     }
 }
