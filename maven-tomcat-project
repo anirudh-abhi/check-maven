@@ -1,0 +1,38 @@
+pipeline {
+    agent any
+ 
+    stage('Github Stage') {
+           steps {
+               git uri: 'https://github.com/anirudh-abhi/check-maven.git', branch: 'main' //
+} 
+}
+  stage('Maven Build stage') {
+      steps {
+          script {
+        def MAVEN_HOME = tool 'Maven 3.9.3' //
+        def JAVA_HOME = tool 'JDK 17" //
+        PATH = "${env.JAVA_HOME}/bin:${env.MAVEN_HOME}/bin:${env.PATH}"
+    }
+
+        }
+}
+        stage('Build') {
+            steps {
+                sh 'mvn clean install'
+            }
+        }
+
+        stage('Archive Artifacts') {
+            steps {
+                archiveArtifacts artifacts: 'target/*.jar', allowEmptyArchive: true
+            }
+        }
+
+    post {
+        always {
+            junit 'target/surefire-reports/*.xml'
+            cleanWs()
+        }
+    }
+}
+
