@@ -1,25 +1,27 @@
 pipeline {
-     agent any
+    agent any
 
-    tools {
-        maven 'maven-3.9.3' // This should match the name you used in the Jenkins tool configuration
+    environment {
+        MAVEN_HOME = tool 'Maven' // Adjust this to match the Maven installation name in Jenkins
+        PATH = "${MAVEN_HOME}/bin:${env.PATH}"
     }
+
     stages {
         stage('Checkout') {
             steps {
-                git 'https://https://github.com/anirudh-abhi/check-maven.git'
+                git url: 'https://github.com/your-repo/your-project.git', branch: 'main'
             }
         }
 
         stage('Build') {
             steps {
-                sh 'mvn clean package'
+                sh 'mvn clean install'
             }
         }
 
         stage('Deploy') {
             steps {
-                deploy adapters: [tomcat9(credentialsId: 'Tomcat-Credentials', path: '', url: 'http://your-tomcat-server:8080')], contextPath: '/', war: '**/*.war'
+                deploy adapters: [tomcat8(credentialsId: 'tomcat-credentials', path: '', url: 'http://your-tomcat-server:8080')], contextPath: '/', war: '**/target/*.war'
             }
         }
     }
@@ -33,3 +35,4 @@ pipeline {
         }
     }
 }
+
